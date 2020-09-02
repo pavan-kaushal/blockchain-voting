@@ -1,0 +1,741 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" >
+    	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" integrity="sha384-HzLeBuhoNPvSl5KYnjx0BT+WB0QEEqLprO+NBkkk5gbc67FTaL7XIGa2w1L0Xbgc" crossorigin="anonymous">
+    	<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@1,600&display=swap" rel="stylesheet">
+		<style>
+			body{
+    	text-align: center;
+		margin-top: 100px;
+		background-color: #00004d;
+	}
+body:hover { background-position: right center; }
+
+h1{
+    color: white;
+      text-shadow: 1px 1px 2px black, 0 0 25px red, 0 0 5px darkblue;
+}
+
+h2{
+    color: white;
+      text-shadow: 1px 1px 2px black, 0 0 25px blue, 0 0 5px darkblue;
+}
+.input-group{
+    width: 25%;
+    margin-left:600px;
+    margin-top: 25px;
+
+    /*transition: background 1s;*/
+}
+.input-group:hover{
+    box-shadow: 10px 10px 5px grey;
+	transition: box-shadow 2s;
+}
+
+span:hover{
+    transition: background 1s;
+    color: white;
+    background-color: orange;
+}
+button:hover{
+        background-color: rgba(211,211,211,0.8);
+        color: white;
+        cursor: pointer;
+}
+#admin{
+	margin-top: 180px;
+	margin-left:600px;
+	/*background-color:#00004d; */
+}
+.form-group{
+	text-align: center;
+	width: 30%;
+}
+#panel{
+	height: 100%;
+}
+		</style>
+	</head>
+    <body onload="myfunction()">
+        
+        <div id="panel">
+			<div id="admin">	
+				<div class="form-group">
+				<img src="logo.jpeg" style="height:220px;width: 220px;  ">
+				<br><br>
+				<input type="text" id="pwd" name="pwd" class="form-control" placeholder="password" aria-describedby="basic-addon2"></input>
+				</div>
+				<div class="form-group">
+				<button onclick="checkpassword() " class="btn-btn-md btn-success form-control">login</button><br/><br/>
+				</div>
+			</div>
+        </div>
+ 
+        <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script>
+            var contract;
+			var text;
+            function checkpassword()
+            {
+                if(document.getElementById("pwd").value==localStorage.getItem("pwd")){//addedhtml  
+                localStorage.setItem("logged","true");//initial
+				document.getElementById("panel").innerHTML="<div id='dec'>"+text+"</div>"+"<div class='input-group form-group'><input type='text' id='changepwd' name='changepwd'  aria-describedby='basic-addon2' placeholder='New Password' class='form-control' ></input><span class='input-group-addon' id='basic-addon2' onclick='changepassword()' style='cursor: pointer;'>change pwd</span></div><div class='input-group form-group'><input type='text' id='addcandidate' aria-describedby='basic-addon2 ' class='form-control' name='addcandidate' aria-describedby='basic-addon2 ' placeholder='add candidate' ></input><span class='input-group-addon' id='basic-addon2' onclick='addcandidate()' style='cursor: pointer;'>add</span></div><div  id='twobuttons'></div><hr style='width: 25%; text-align: center;'><hr style='width: 25%; text-align: center;'><hr style='width: 25%; text-align: center;'><h2>Candidate Panel &nbsp; <span onclick='setpanel2()' class='btn btn-primary'><i class='fas fa-redo-alt btn btn-md' style='padding: 3px 4px;  margin-right:2px;' > </i></span></h2><br><div id='c_panel'></div>";
+                window.alert("succesfully logged in!")
+				setvalues();
+				setpanel2();
+				location.reload();
+                }
+                else{window.alert("invalid password")}
+            }
+
+            function changepassword()
+            {
+               var newpwd=document.getElementById("changepwd").value;
+               console.log("new:"+newpwd);
+			   contract.methods.getPwd().call().then(function(pswd){
+                localStorage.setItem("pwd",pswd)
+                console.log(pswd);
+                if(pswd!=newpwd && newpwd!=""){
+                web3.eth.getAccounts().then(function(accounts){
+					console.log(accounts);
+             contract.methods.changePwd(newpwd).send({from : accounts[0]}).then(function(pswd){
+                    console.log(pswd);
+					logout();
+                })
+                    }) 
+						}
+					else{
+						window.alert("enter valid new password");
+					}
+				})
+            
+                
+            }
+
+			//arrrr
+			function setpanel(){
+				var listItems=[];
+				var votes=""
+				console.log("setpanel() called");
+				contract.methods.allCandidates(0).call().then(function(candidatesArray){
+					console.log(candidatesArray);
+					for(i=0;i<5;i++){
+							if(candidatesArray[i]){
+								console.log(typeof(candidatesArray[i]));
+								console.log(candidatesArray[i]);
+										viewvotes(candidatesArray[i])//addedhtml
+										listItems.push("<h4 style='font-family: Source Sans Pro, sans-serif; color:white;'>"+candidatesArray[i]+"&emsp;&emsp;:&emsp;&emsp;   "+localStorage.getItem(candidatesArray[i])+" votes  &emsp;&emsp;<button onclick=removecandidate('"+candidatesArray[i]+"') class='btn btn-md btn-warning'>Remove "+candidatesArray[i]+"</button></h4>");
+												
+								}
+							}
+                document.getElementById('c_panel').innerHTML = listItems.join("<br/>");
+				})
+
+			}
+
+			function setpanel2(){
+				setpanel();
+				setpanel();
+
+			}
+
+			function setvalues(){
+				console.log("setvalues() called");
+				
+				contract.methods.getTotal().call().then(function(limit){
+						contract.methods.getcandidateCount().call().then(function(curr){
+							console.log(limit+" "+curr);
+							var text2=(limit==curr)?"<div class='alert alert-danger' role='alert' style='width: 30%;margin-left:600px;text-align: center;'><h3>Candidate count&nbsp;:&nbsp;"+curr+"</h3><h3>Candidate Limit&nbsp;:&nbsp;"+limit+"</h3></div>" : "<div class='alert alert-success' role='alert' style='width: 30%;margin-left:600px;text-align: center;'><h3>Candidate count&nbsp;:&nbsp;"+curr+"</h3><h3>Candidate Limit&nbsp;:&nbsp;"+limit+"</h3></div>";
+							document.getElementById('dec').innerHTML=text+text2;
+							})
+					})
+			}
+
+			function removecandidate(name){
+				console.log("remove called for "+ name);
+				web3.eth.getAccounts().then(function(accounts){
+             contract.methods.removeCandidate(name).send({ from : accounts[0]}).then(function(removed){
+                    console.log("removecandidate called for "+name+" "+JSON.stringify(removed));
+					localStorage.removeItem(name);
+					setvalues();
+					setpanel();
+                })
+					})
+					
+
+			}
+
+
+			function viewvotes(name)
+			{
+				console.log("viewvotes reached for "+name+" : "+typeof(name));
+				var result;
+				contract.methods.totalVotesFor(name).call().then(function(votes){
+                    console.log(votes+" votes : "+typeof(votes));
+					localStorage.setItem(name,votes);
+					console.log(localStorage.getItem(name));
+                })		
+			}
+
+			function winner(){
+				contract.methods.getWinner(0).call().then(function(won){
+					if(won=="Draw")
+					{
+						window.alert("Draw");	
+					}
+					else{window.alert(won+" won");}    
+                     })
+			}
+
+            function declarewinner()
+            {
+				contract.methods.isDeclared().call().then(function(declared){
+					if(declared){window.alert("already declared");}
+					else{
+						web3.eth.getAccounts().then(function(accounts){
+                    contract.methods.Declare().send({ from : accounts[0] }).then(function(declared1){
+                    console.log(declared1);
+					text= isdeclared?"<h2>Declared</h2></div>":"<h1>Not Declared</h1>";
+					console.log(text);
+					document.getElementById('dec').innerHTML=text;  
+						setvalues();
+						 setpanel2();
+						 console.log("end");
+						 winner();
+						 location.reload();
+                    })
+									})	
+					}
+				})
+			
+					
+                    		
+            }
+			
+            function addcandidate()
+            {	
+				contract.methods.isDeclared().call().then(function(declared){if(declared){window.alert("cannot add candidates for declared election");}
+				
+				else{
+				contract.methods.getTotal().call().then(function(limit){
+						contract.methods.getcandidateCount().call().then(function(curr){
+				
+				if(limit!=curr){
+				console.log(document.getElementById("addcandidate").value);
+				if(document.getElementById("addcandidate").value!=""){
+					contract.methods.isExists(document.getElementById("addcandidate").value).call().then(function(exists){
+						if(!exists){
+							web3.eth.getAccounts().then(function(accounts){
+                    contract.methods.addCandidate(document.getElementById("addcandidate").value).send({ from : accounts[0] }).then(function(added){
+                    console.log(document.getElementById("addcandidate").value+" "+JSON.stringify(added));  
+						 setpanel2();
+						 setvalues();
+                    })
+									})
+									
+						}
+						else{
+							window.alert(document.getElementById("addcandidate").value+" exists");
+						}
+							})
+						}
+					else{
+						window.alert("candidate name cannot be empty");
+					}
+				}
+				else{window.alert("limit reached!!");}
+						})
+					})
+				}
+				})
+            }
+
+			function logout(){
+				localStorage.setItem("logged","false");
+				location.reload();
+			}
+
+			function myfunction(){
+            //$(document).ready(function(){
+                web3= new Web3(web3.currentProvider);
+                web3 = new Web3(web3.currentProvider);
+                console.log(web3,"web3 check");
+				
+                var address = "0x493aB83D7eb652409ecEc486f001043B93d7C5c5";
+                var abi = [
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "Declare",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "candidate",
+				"type": "string"
+			}
+		],
+		"name": "addCandidate",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "adminpwd",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "y",
+				"type": "uint256"
+			}
+		],
+		"name": "allCandidates",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "candidateCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"name": "candidateIndex",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "exists",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "index",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "candidateList",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "new_pwd",
+				"type": "string"
+			}
+		],
+		"name": "changePwd",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "declared",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getPwd",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getTotal",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "uy",
+				"type": "uint256"
+			}
+		],
+		"name": "getWinner",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getcandidateCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "aadhar",
+				"type": "uint256"
+			}
+		],
+		"name": "hasVoted",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "isDeclared",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "candidate",
+				"type": "string"
+			}
+		],
+		"name": "isExists",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "candidate",
+				"type": "string"
+			}
+		],
+		"name": "removeCandidate",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "total",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "candidate",
+				"type": "string"
+			}
+		],
+		"name": "totalVotesFor",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "candidate",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "aadharnum",
+				"type": "uint256"
+			}
+		],
+		"name": "voteForCandidate",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "voted",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"name": "votesReceived",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+];   
+            var abi_ =JSON.parse(JSON.stringify(abi));
+            contract = new  web3.eth.Contract(abi_,address);
+                console.log(contract,"contract  check");
+                
+                web3.eth.getAccounts().then(function(accounts){
+					console.log(accounts);
+             return contract.methods.getPwd().call().then(function(pswd){
+                localStorage.setItem("pwd",pswd)
+                console.log(pswd);
+                })
+                    }) 
+
+					contract.methods.isDeclared().call().then(function(declared){
+				 console.log(declared) 
+					dec=declared;
+					console.log(dec);
+					console.log(typeof(dec));//addedhtml
+						text= dec?"<h1>Declared</h1>":"<h2>Not Declared</h2>";
+						var buttons=!dec?"<button onclick='declarewinner()' class='btn btn-md btn-warning' style='width: 10%; margin-top: 10px;'>declare!!</button>&nbsp;&nbsp;<button onclick='logout()' class='btn btn-md btn-primary' style='width: 10%; margin-top: 10px;'>logout</button><br/><br/>":"<button onclick='winner()' class='btn btn-md btn-primary' style='width: 10%; margin-top: 10px;'>view winner</button>&nbsp;&nbsp;<button onclick='logout()' class='btn btn-md btn-primary' style='width: 10%; margin-top: 10px;'>logout</button><br/><br/>";
+						console.log("logged : "+localStorage.getItem("logged")=="true");
+					if(localStorage.getItem("logged")=="true"){//initial
+						document.getElementById("panel").innerHTML="<div id='dec'>"+text+"</div>"+"<div class='input-group form-group'><input type='text' id='changepwd' name='changepwd'  aria-describedby='basic-addon2' placeholder='New Password' class='form-control' ></input><span class='input-group-addon pointerset' id='basic-addon2' onclick='changepassword()' style='cursor: pointer;'>change pwd</span></div><div class='input-group form-group'><input type='text' id='addcandidate' aria-describedby='basic-addon2 ' class='form-control' name='addcandidate' aria-describedby='basic-addon2 ' placeholder='add candidate' ></input><span class='input-group-addon  pointerset' id='basic-addon2' onclick='addcandidate()' style='cursor: pointer;'>add</span></div><div id='twobuttons'></div><hr style='width: 25%; text-align: center;'><h2>Candidate Panel &nbsp; <span onclick='setpanel2()' class='btn btn-primary'><i class='fas fa-redo-alt btn btn-md' style='padding: 3px 4px;  margin-right:2px;' > </i></span></h2><br><div id='c_panel'></div>";
+						document.getElementById('twobuttons').innerHTML=buttons;
+						}
+					})
+
+					setvalues();
+					setpanel2();
+                //})();
+			}
+///////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////
+        </script>
+    </body>
+</html>

@@ -1,0 +1,31 @@
+h1{
+    font-family: 'Lobster', cursive;
+    margin-bottom: 25px;
+}
+.container{
+    margin-top:100px;
+}
+.jumbotron{
+    background-color: rgba(0,0,0,0);
+    padding: 75px;
+    opacity: 0;
+}
+body{
+    background-image: linear-gradient(to right, rgba(0,0,10,0.1), rgba(0,0,10,0.8)),url('https://storage.googleapis.com/bag_media_store/static_dev/static_root/uploads/froala_editor/images/ele_FWG8xYr.jpg');
+    background-repeat: no-repeat;
+    background-position:center;
+    background-size: cover;
+}
+.hedr{
+    width:60%;
+    margin-left: 200px;
+
+}
+span{
+    width: 20px;
+}
+#basic-addon2:hover{
+    background-color:#3234a8;
+    color: white;
+    transition: background-color 1s;
+}
