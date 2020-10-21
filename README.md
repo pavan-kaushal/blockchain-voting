@@ -26,5 +26,15 @@
  
  - your browser must support web3
  
+ # Resources
+ 
+- https://solidity.readthedocs.io/en/v0.7.4/
+
+- https://www.trufflesuite.com/docs/ganache/overview
+
+- https://web3js.readthedocs.io/en/v1.3.0/
+
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript
+ 
  
  # go through console logs for more info about your errors 
