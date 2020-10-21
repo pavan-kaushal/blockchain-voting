@@ -9,8 +9,7 @@
  
  - Aadhar number authenticity is checked using Vorhoeff's algorithm
  
- - add address of the deployed smart contract in address variable of $('document').ready function to access the deployed smart contract from the front end in both admin.html and   
- voter.html files
+ - add address of the deployed smart contract in address variable of $('document').ready function to access the deployed smart contract from the front end in both admin.html and  voter.html files
  
  
  # IDE's used
