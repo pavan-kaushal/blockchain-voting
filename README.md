@@ -1,5 +1,5 @@
 # blockchain-voting
- a decentralized approach to elections using ethereum smart contracts
+ a decentralized approach to voting and poling using ethereum smart contracts
  
  
 # Features :
