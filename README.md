@@ -13,18 +13,18 @@
  
  
  # IDE's used
- 1. remix.ethereum.org( solidity coding and smart contract deployement )
+ - remix.ethereum.org( solidity coding and smart contract deployement )
  
- 2.visual studio
- 
- 
- make sure your browser has a ethereum wallet( I prefer metmask ) and the current account is connected to the deployed network of the smart contract
+ - visual studio
  
  
- I used Ganache for development ether
+ - make sure your browser has a ethereum wallet( I prefer metmask ) and the current account is connected to the deployed network of the smart contract
  
  
- your browser must support web3
+ - I used Ganache for development ether
+ 
+ 
+ - your browser must support web3
  
  
  # go through console logs for more info about your errors 
