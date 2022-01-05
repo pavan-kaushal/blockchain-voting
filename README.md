@@ -18,10 +18,10 @@
  - visual studio
  
  
- - make sure your browser has a ethereum wallet( I prefer metmask ) and the current account is connected to the deployed network of the smart contract
+ - make sure your browser has a ethereum wallet( I used metamask ) and the current account is connected to the deployed network of the smart contract
  
  
- - I used Ganache for development ether
+ - Ganache for test ethereum coins
  
  
  - your browser must support web3
@@ -37,4 +37,3 @@
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript
  
  
- # go through console logs for more info about your errors 
