@@ -12,7 +12,7 @@
  - add address of the deployed smart contract in address variable of $('document').ready function to access the deployed smart contract from the front end in both admin.html and  voter.html files
  
  
- # IDE's used
+ # IDE's and Requirements
  - remix.ethereum.org( solidity coding and smart contract deployement )
  
  - visual studio
@@ -21,7 +21,7 @@
  - make sure your browser has a ethereum wallet( I used metamask ) and the current account is connected to the deployed network of the smart contract
  
  
- - Ganache for test ethereum coins
+ - Ganache for  setting up a personal ethereum blockchain for testing my smart contracts
  
  
  - your browser must support web3
